@@ -78,8 +78,8 @@ def test_signup_at_maximum_capacity():
     max_capacity = activities[activity_name]["max_participants"]
     
     # Fill the activity to maximum capacity
-    for i in range(max_capacity - len(activities[activity_name]["participants"])):
-        email = f"student{i}@mergington.edu"
+    for participant_num in range(max_capacity - len(activities[activity_name]["participants"])):
+        email = f"capacity.test.student{participant_num}@mergington.edu"
         response = client.post(
             f"/activities/{activity_name}/signup",
             params={"email": email},
