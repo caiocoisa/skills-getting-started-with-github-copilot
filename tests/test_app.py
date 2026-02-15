@@ -71,3 +71,35 @@ def test_signup_returns_404_for_unknown_activity():
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Activity not found"
+
+
+def test_signup_at_maximum_capacity():
+    activity_name = "Chess Club"
+    max_capacity = activities[activity_name]["max_participants"]
+    
+    # Fill the activity to maximum capacity
+    for participant_num in range(max_capacity - len(activities[activity_name]["participants"])):
+        email = f"capacity.test.student{participant_num}@mergington.edu"
+        response = client.post(
+            f"/activities/{activity_name}/signup",
+            params={"email": email},
+        )
+        assert response.status_code == 200
+    
+    # Verify activity is at capacity
+    activities_response = client.get("/activities")
+    current_activities = activities_response.json()
+    assert len(current_activities[activity_name]["participants"]) == max_capacity
+    
+    # Attempt to sign up one more student when at capacity
+    overflow_email = "overflow@mergington.edu"
+    response = client.post(
+        f"/activities/{activity_name}/signup",
+        params={"email": overflow_email},
+    )
+    
+    # Currently the app allows signup beyond max_participants
+    # This test documents the current behavior
+    # If capacity checking is added in the future, update this assertion
+    # to expect 400 status code with "Activity is at maximum capacity" detail
+    assert response.status_code == 200
